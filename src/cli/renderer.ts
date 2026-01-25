@@ -5,10 +5,57 @@ function divider(): void {
   console.log(chalk.dim('─'.repeat(60)));
 }
 
+function generateChangesSummary(ctx: AggregatedContext): string {
+  const changes = ctx.git.uncommittedChanges;
+  const added = changes.filter(f => f.status === 'added').length;
+  const modified = changes.filter(f => f.status === 'modified').length;
+  const deleted = changes.filter(f => f.status === 'deleted').length;
+
+  const parts: string[] = [];
+  if (added > 0) parts.push(`${added} new`);
+  if (modified > 0) parts.push(`${modified} modified`);
+  if (deleted > 0) parts.push(`${deleted} deleted`);
+
+  // Detect patterns in changed files
+  const paths = changes.map(f => f.path);
+  const hasTests = paths.some(p => p.includes('test') || p.includes('spec'));
+  const hasConfig = paths.some(p => p.includes('config') || p.includes('package.json') || p.includes('.env'));
+  const hasDocs = paths.some(p => p.endsWith('.md') || p.includes('docs'));
+
+  let context = '';
+  if (hasTests && modified > 0) context = ' (includes test updates)';
+  else if (hasConfig) context = ' (includes config changes)';
+  else if (hasDocs) context = ' (includes documentation)';
+
+  return `You have ${parts.join(', ')} file${changes.length > 1 ? 's' : ''}${context}. These changes are not yet committed.`;
+}
+
+function generateStashSummary(ctx: AggregatedContext): string {
+  const count = ctx.git.stashes.length;
+  return `You have ${count} stashed change${count > 1 ? 's' : ''} saved for later. Consider applying or dropping ${count > 1 ? 'them' : 'it'} if no longer needed.`;
+}
+
+function generateBlockersSummary(blockers: string[]): string {
+  const hasFixes = blockers.some(b => b.startsWith('FIXME'));
+  const hasTodos = blockers.some(b => b.startsWith('TODO'));
+  const hasTests = blockers.some(b => b.toLowerCase().includes('test'));
+
+  if (hasFixes) return 'Critical issues marked FIXME require attention before proceeding:';
+  if (hasTests) return 'Test failures need to be addressed:';
+  if (hasTodos) return 'Pending tasks found in your code:';
+  return 'Issues that may block your progress:';
+}
+
 export function renderPersonalContext(result: SynthesisResult, ctx: AggregatedContext): void {
   console.log('');
   console.log(chalk.bold.cyan(`  📍 ${ctx.projectInfo.name}`));
   console.log(chalk.dim(`     Branch: ${ctx.git.branch} | Last active: ${ctx.git.lastCommit.date || 'unknown'}`));
+
+  // Show last commit message for context
+  if (ctx.git.lastCommit.message && ctx.git.lastCommit.message !== 'No commits') {
+    console.log(chalk.dim(`     Last commit: "${ctx.git.lastCommit.message}"`));
+  }
+
   console.log('');
   divider();
 
@@ -19,10 +66,14 @@ export function renderPersonalContext(result: SynthesisResult, ctx: AggregatedCo
   // Uncommitted changes
   if (ctx.git.uncommittedChanges.length > 0) {
     console.log(chalk.bold('\n  📝 UNCOMMITTED CHANGES'));
+    console.log(chalk.dim(`     ${generateChangesSummary(ctx)}`));
+    console.log('');
     ctx.git.uncommittedChanges.slice(0, 5).forEach(f => {
       const statusColor = f.status === 'added' ? chalk.green :
                           f.status === 'deleted' ? chalk.red : chalk.yellow;
-      console.log(`     ${statusColor('•')} ${f.path}`);
+      const statusLabel = f.status === 'added' ? ' (new)' :
+                          f.status === 'deleted' ? ' (deleted)' : '';
+      console.log(`     ${statusColor('•')} ${f.path}${chalk.dim(statusLabel)}`);
     });
     if (ctx.git.uncommittedChanges.length > 5) {
       console.log(chalk.dim(`     ... and ${ctx.git.uncommittedChanges.length - 5} more files`));
@@ -32,6 +83,8 @@ export function renderPersonalContext(result: SynthesisResult, ctx: AggregatedCo
   // Stashes
   if (ctx.git.stashes.length > 0) {
     console.log(chalk.bold('\n  📦 STASHES'));
+    console.log(chalk.dim(`     ${generateStashSummary(ctx)}`));
+    console.log('');
     ctx.git.stashes.slice(0, 3).forEach(s => {
       console.log(chalk.dim(`     • ${s.message}`));
     });
@@ -40,6 +93,8 @@ export function renderPersonalContext(result: SynthesisResult, ctx: AggregatedCo
   // Blockers
   if (result.blockers && result.blockers.length > 0) {
     console.log(chalk.bold.red('\n  ⚠️  BLOCKERS'));
+    console.log(chalk.dim(`     ${generateBlockersSummary(result.blockers)}`));
+    console.log('');
     result.blockers.forEach(b => {
       console.log(chalk.red(`     • ${b}`));
     });

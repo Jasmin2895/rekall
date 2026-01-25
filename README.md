@@ -25,12 +25,14 @@ You step away from your code for a meeting, lunch, or the weekend. When you retu
 ## Installation
 
 ```bash
-# Install globally
-npm install -g rekall
+# Install globally (required for CLI)
+npm install -g rekall-cli
 
-# Or run directly with npx
-npx rekall
+# Or run directly with npx (no install needed)
+npx rekall-cli
 ```
+
+> **Note:** The `-g` flag is required to install as a global CLI command.
 
 ## Usage
 

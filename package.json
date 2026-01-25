@@ -1,6 +1,6 @@
 {
-  "name": "rekall",
-  "version": "1.0.0",
+  "name": "rekall-cli",
+  "version": "1.0.2",
   "description": "Remember where you were - Context recovery for developers",
   "type": "module",
   "main": "./dist/index.js",
