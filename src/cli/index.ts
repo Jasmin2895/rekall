@@ -2,13 +2,17 @@
 import { Command } from 'commander';
 import { contextCommand } from './commands/context.js';
 import { prCommand } from './commands/pr.js';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const pkg = require('../package.json');
 
 const program = new Command();
 
 program
   .name('rekall')
   .description('Remember where you were - Context recovery for developers')
-  .version('1.0.0');
+  .version(pkg.version);
 
 // Personal context mode
 program
