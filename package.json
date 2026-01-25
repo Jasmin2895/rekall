@@ -1,6 +1,6 @@
 {
   "name": "rekall-cli",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Remember where you were - Context recovery for developers",
   "type": "module",
   "main": "./dist/index.js",
@@ -10,7 +10,8 @@
   },
   "files": [
     "dist",
-    "bin"
+    "bin",
+    "package.json"
   ],
   "repository": {
     "type": "git",
