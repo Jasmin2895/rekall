@@ -51,6 +51,11 @@ export function renderPersonalContext(result: SynthesisResult, ctx: AggregatedCo
 
   console.log('');
   divider();
+
+  if (result.fallbackMode) {
+    console.log(chalk.dim('  Note: GitHub Copilot CLI not available, using basic analysis'));
+  }
+
   console.log('');
 }
 
@@ -108,6 +113,11 @@ export function renderPRContext(result: SynthesisResult, ctx: AggregatedContext)
 
   console.log('');
   divider();
+
+  if (result.fallbackMode) {
+    console.log(chalk.dim('  Note: GitHub Copilot CLI not available, using basic analysis'));
+  }
+
   console.log('');
 }
 

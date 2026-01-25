@@ -96,4 +96,5 @@ export interface SynthesisResult {
   lowRiskFiles?: string[];
   questions?: string[];
   blockers?: string[];
+  fallbackMode?: boolean;
 }

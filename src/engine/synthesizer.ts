@@ -59,7 +59,8 @@ export async function synthesizeWithCopilot(ctx: AggregatedContext): Promise<Syn
       : parsePRResponse(result);
   } catch (error) {
     // If Copilot CLI fails, return a basic analysis based on the raw data
-    console.error('Note: GitHub Copilot CLI not available, using basic analysis');
+    // Note: We set a flag that the renderer can check, rather than printing here
+    // to avoid corrupting the loading spinner output
 
     if (ctx.mode === 'personal') {
       return {
@@ -70,6 +71,7 @@ export async function synthesizeWithCopilot(ctx: AggregatedContext): Promise<Syn
         blockers: ctx.code?.todos.length
           ? [`${ctx.code.todos.length} TODO items to address`]
           : [],
+        fallbackMode: true,
       };
     } else {
       const pr = ctx.pr!;
@@ -83,6 +85,7 @@ export async function synthesizeWithCopilot(ctx: AggregatedContext): Promise<Syn
           .map(f => f.path),
         questions: ['Does this change have adequate test coverage?'],
         blockers: [],
+        fallbackMode: true,
       };
     }
   }

@@ -15,12 +15,13 @@ export async function exec(command: string, cwd?: string): Promise<string> {
       maxBuffer: 1024 * 1024 * 10, // 10MB buffer
       encoding: 'utf-8',
     });
-    return stdout.trim();
+    // Use trimEnd() to preserve leading whitespace (significant in git status --porcelain)
+    return stdout.trimEnd();
   } catch (error: unknown) {
     const err = error as Error & { stdout?: string; stderr?: string };
     // Some commands exit with non-zero but still have useful output
     if (err.stdout) {
-      return err.stdout.trim();
+      return err.stdout.trimEnd();
     }
     throw error;
   }

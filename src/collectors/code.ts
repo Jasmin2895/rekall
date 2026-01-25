@@ -50,9 +50,9 @@ function parseTestOutput(output: string): TestResult[] {
 }
 
 export async function collectCodeContext(): Promise<CodeContext> {
-  // Find TODOs and FIXMEs
+  // Find TODOs and FIXMEs (exclude common dependency directories)
   const todoOutput = await execSafe(
-    'grep -rn "TODO\\|FIXME" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" --include="*.py" --include="*.go" --include="*.rs" . 2>/dev/null | head -20',
+    'grep -rn "TODO\\|FIXME" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" --include="*.py" --include="*.go" --include="*.rs" --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=build --exclude-dir=vendor --exclude-dir=.next . 2>/dev/null | head -10',
     ''
   );
 
