@@ -1,7 +1,7 @@
 import { GitContext, CommitInfo, FileChange, StashInfo } from '../types/index.js';
-import { exec, execSafe } from '../utils/shell.js';
+import { execSafe } from '../utils/shell.js';
 
-function parseCommitLog(log: string): CommitInfo[] {
+export function parseCommitLog(log: string): CommitInfo[] {
   if (!log.trim()) return [];
 
   return log.split('\n').filter(Boolean).map(line => {
@@ -10,32 +10,7 @@ function parseCommitLog(log: string): CommitInfo[] {
   });
 }
 
-function parseDiffStat(diff: string): FileChange[] {
-  if (!diff.trim()) return [];
-
-  const changes: FileChange[] = [];
-  const lines = diff.split('\n').filter(Boolean);
-
-  for (const line of lines) {
-    // Parse lines like: " src/index.ts | 10 ++++---"
-    const match = line.match(/^\s*(.+?)\s*\|\s*(\d+)/);
-    if (match) {
-      const [, path, count] = match;
-      const additions = (line.match(/\+/g) || []).length;
-      const deletions = (line.match(/-/g) || []).length;
-      changes.push({
-        path: path.trim(),
-        status: 'modified',
-        additions,
-        deletions,
-      });
-    }
-  }
-
-  return changes;
-}
-
-function parseStatusOutput(status: string): FileChange[] {
+export function parseStatusOutput(status: string): FileChange[] {
   if (!status.trim()) return [];
 
   return status.split('\n').filter(Boolean).map(line => {
@@ -55,7 +30,7 @@ function parseStatusOutput(status: string): FileChange[] {
   });
 }
 
-function parseStashList(stashOutput: string): StashInfo[] {
+export function parseStashList(stashOutput: string): StashInfo[] {
   if (!stashOutput.trim()) return [];
 
   return stashOutput.split('\n').filter(Boolean).map((line, index) => {
@@ -72,7 +47,7 @@ function parseStashList(stashOutput: string): StashInfo[] {
   });
 }
 
-function calculateDaysSince(dateString: string): number {
+export function calculateDaysSince(dateString: string): number {
   if (!dateString) return -1;
 
   // Try to parse relative dates like "5 days ago"
@@ -99,10 +74,9 @@ function calculateDaysSince(dateString: string): number {
 }
 
 export async function collectGitContext(): Promise<GitContext> {
-  const [branch, log, diffStat, status, stash] = await Promise.all([
+  const [branch, log, status, stash] = await Promise.all([
     execSafe('git branch --show-current', 'unknown'),
     execSafe('git log --oneline -10 --format="%h|%s|%ar"', ''),
-    execSafe('git diff --stat HEAD 2>/dev/null', ''),
     execSafe('git status --porcelain', ''),
     execSafe('git stash list', ''),
   ]);

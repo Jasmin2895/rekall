@@ -1,25 +1,35 @@
 import { CodeContext, TodoItem, TestResult } from '../types/index.js';
 import { execSafe } from '../utils/shell.js';
 
-function parseTodos(output: string): TodoItem[] {
+export function parseTodos(output: string): TodoItem[] {
   if (!output.trim()) return [];
 
   return output.split('\n').filter(Boolean).map(line => {
-    // Parse: file:line: // TODO: message or file:line: // FIXME: message
-    const match = line.match(/^(.+?):(\d+):\s*.*?(TODO|FIXME)[:\s]*(.+)$/i);
+    // Parse comment-style TODOs: file:line: // TODO: message or file:line: # TODO: message
+    // Must have a comment marker before TODO/FIXME to avoid false positives
+    const match = line.match(/^(.+?):(\d+):\s*(?:\/\/|\/\*|#|<!--|\*)\s*(TODO|FIXME)[:\s]+(.+)$/i);
     if (match) {
+      const text = match[4].trim()
+        .replace(/\*\/\s*$/, '')  // Remove trailing */
+        .replace(/-->\s*$/, '');   // Remove trailing -->
+
+      // Skip if the "text" looks like code (contains quotes, brackets, etc.)
+      if (text.includes("'") && text.includes("|") || text.startsWith('(')) {
+        return null;
+      }
+
       return {
         file: match[1],
         line: parseInt(match[2], 10),
         type: match[3].toUpperCase() as 'TODO' | 'FIXME',
-        text: match[4].trim(),
+        text,
       };
     }
     return null;
   }).filter((t): t is TodoItem => t !== null);
 }
 
-function parseTestOutput(output: string): TestResult[] {
+export function parseTestOutput(output: string): TestResult[] {
   if (!output.trim()) return [];
 
   const results: TestResult[] = [];
@@ -50,9 +60,9 @@ function parseTestOutput(output: string): TestResult[] {
 }
 
 export async function collectCodeContext(): Promise<CodeContext> {
-  // Find TODOs and FIXMEs (exclude common dependency directories)
+  // Find TODOs and FIXMEs in comments (exclude dependencies and test files)
   const todoOutput = await execSafe(
-    'grep -rn "TODO\\|FIXME" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" --include="*.py" --include="*.go" --include="*.rs" --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=build --exclude-dir=vendor --exclude-dir=.next . 2>/dev/null | head -10',
+    'grep -rn -E "(//|/\\*|#|<!--|\\*)\\s*(TODO|FIXME)" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" --include="*.py" --include="*.go" --include="*.rs" --exclude="*.test.*" --exclude="*.spec.*" --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=build --exclude-dir=vendor --exclude-dir=.next --exclude-dir=__tests__ . 2>/dev/null | head -20',
     ''
   );
 

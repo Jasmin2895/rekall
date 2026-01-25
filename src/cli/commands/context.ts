@@ -1,34 +1,54 @@
 import { gatherPersonalContext, synthesizeWithCopilot } from '../../engine/index.js';
-import { renderPersonalContext, renderError, renderLoading, clearLoading } from '../renderer.js';
+import { renderPersonalContext, renderError, renderLoading, clearLoading, renderJSON } from '../renderer.js';
 import { isGitRepository } from '../../utils/config.js';
 
-export async function contextCommand(): Promise<void> {
+interface ContextCommandOptions {
+  format?: 'text' | 'json';
+}
+
+export async function contextCommand(options: ContextCommandOptions): Promise<void> {
+  const isJSON = options.format === 'json';
+
   // Check if we're in a git repository
   if (!isGitRepository()) {
-    renderError('Not a git repository. Run this command from a git project.');
+    if (isJSON) {
+      console.log(JSON.stringify({ error: 'Not a git repository' }));
+    } else {
+      renderError('Not a git repository. Run this command from a git project.');
+    }
     process.exit(1);
   }
 
   try {
-    renderLoading('Gathering context');
+    if (!isJSON) renderLoading('Gathering context');
 
     // Gather all context
     const ctx = await gatherPersonalContext();
 
-    clearLoading();
-    renderLoading('Analyzing with Copilot');
+    if (!isJSON) {
+      clearLoading();
+      renderLoading('Analyzing with Copilot');
+    }
 
     // Synthesize with Copilot CLI
     const result = await synthesizeWithCopilot(ctx);
 
-    clearLoading();
+    if (!isJSON) clearLoading();
 
     // Render the output
-    renderPersonalContext(result, ctx);
+    if (isJSON) {
+      renderJSON(result, ctx);
+    } else {
+      renderPersonalContext(result, ctx);
+    }
   } catch (error) {
-    clearLoading();
+    if (!isJSON) clearLoading();
     const message = error instanceof Error ? error.message : 'Unknown error occurred';
-    renderError(message);
+    if (isJSON) {
+      console.log(JSON.stringify({ error: message }));
+    } else {
+      renderError(message);
+    }
     process.exit(1);
   }
 }

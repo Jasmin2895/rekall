@@ -3,14 +3,30 @@
   "version": "1.0.0",
   "description": "Remember where you were - Context recovery for developers",
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "rekall": "./bin/rekall.js"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jasmin2895/rekall.git"
+  },
+  "homepage": "https://github.com/Jasmin2895/rekall#readme",
+  "bugs": {
+    "url": "https://github.com/Jasmin2895/rekall/issues"
   },
   "scripts": {
     "build": "tsup src/cli/index.ts --format esm --dts --outDir dist",
     "dev": "tsup src/cli/index.ts --format esm --watch",
     "start": "node dist/index.js",
-    "lint": "eslint src/**/*.ts",
+    "lint": "eslint src/",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -21,16 +37,20 @@
     "productivity",
     "developer-tools"
   ],
-  "author": "",
+  "author": "Jasmin Virdi",
   "license": "MIT",
   "dependencies": {
     "chalk": "^5.3.0",
     "commander": "^12.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/node": "^20.11.0",
+    "eslint": "^9.39.2",
     "tsup": "^8.0.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.53.1",
+    "vitest": "^4.0.18"
   },
   "engines": {
     "node": ">=18.0.0"

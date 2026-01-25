@@ -127,6 +127,52 @@ export function renderError(message: string): void {
   console.log('');
 }
 
+export function renderJSON(result: SynthesisResult, ctx: AggregatedContext): void {
+  const output = {
+    mode: ctx.mode,
+    project: {
+      name: ctx.projectInfo.name,
+      type: ctx.projectInfo.type,
+      path: ctx.projectInfo.rootPath,
+    },
+    git: {
+      branch: ctx.git.branch,
+      lastCommit: ctx.git.lastCommit,
+      uncommittedChanges: ctx.git.uncommittedChanges,
+      stashes: ctx.git.stashes,
+      daysSinceLastCommit: ctx.git.daysSinceLastCommit,
+    },
+    analysis: {
+      summary: result.summary,
+      nextStep: result.nextStep,
+      blockers: result.blockers,
+      highRiskFiles: result.highRiskFiles,
+      lowRiskFiles: result.lowRiskFiles,
+      questions: result.questions,
+    },
+    ...(ctx.pr && {
+      pr: {
+        number: ctx.pr.number,
+        title: ctx.pr.title,
+        author: ctx.pr.author,
+        url: ctx.pr.url,
+        baseBranch: ctx.pr.baseBranch,
+        headBranch: ctx.pr.headBranch,
+        commits: ctx.pr.commits,
+        files: ctx.pr.files,
+      },
+    }),
+    ...(ctx.code && {
+      code: {
+        todos: ctx.code.todos,
+        failingTests: ctx.code.failingTests,
+      },
+    }),
+  };
+
+  console.log(JSON.stringify(output, null, 2));
+}
+
 export function renderLoading(message: string): void {
   process.stdout.write(chalk.dim(`  ⏳ ${message}...`));
 }

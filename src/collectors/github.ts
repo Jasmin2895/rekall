@@ -43,12 +43,12 @@ export async function collectPRContext(prNumber: number, repo?: string): Promise
   const files: FileChange[] = filesRaw
     .split('\n')
     .filter(Boolean)
-    .map(line => {
+    .map((line): FileChange | null => {
       try {
         const file: GHFilesResponse = JSON.parse(line);
         return {
           path: file.path,
-          status: 'modified' as const,
+          status: 'modified',
           additions: file.additions,
           deletions: file.deletions,
         };

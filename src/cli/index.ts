@@ -10,15 +10,19 @@ program
   .description('Remember where you were - Context recovery for developers')
   .version('1.0.0');
 
+// Personal context mode
+program
+  .command('context', { isDefault: true })
+  .description('Show personal context for current project')
+  .option('-f, --format <format>', 'Output format: text or json', 'text')
+  .action(contextCommand);
+
 // PR review mode
 program
   .command('pr <number>')
   .description('Analyze a PR before reviewing')
   .option('-r, --repo <repo>', 'Repository in owner/repo format')
+  .option('-f, --format <format>', 'Output format: text or json', 'text')
   .action(prCommand);
-
-// Default command (personal context) - runs when no subcommand is provided
-program
-  .action(contextCommand);
 
 program.parse();
