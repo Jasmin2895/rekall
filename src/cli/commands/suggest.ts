@@ -52,19 +52,19 @@ async function suggestWithCopilot(prompt: string): Promise<{ suggestion: string;
     .replace(/\$/g, '\\$')
     .replace(/`/g, '\\`');
 
-  // Try gh copilot explain
+  // Try gh copilot -p syntax (current)
   try {
-    const result = await exec(`gh copilot explain "${escapedPrompt}"`);
+    const result = await exec(`gh copilot -p "${escapedPrompt}"`);
     if (result && !result.includes('not installed') && !result.includes('unknown command')) {
       return { suggestion: result.trim(), usedCopilot: true };
     }
   } catch {
-    // Try alternative
+    // Try legacy syntax
   }
 
-  // Try gh copilot suggest
+  // Try legacy gh copilot explain syntax
   try {
-    const result = await exec(`gh copilot suggest "${escapedPrompt}"`);
+    const result = await exec(`gh copilot explain "${escapedPrompt}"`);
     if (result && !result.includes('not installed') && !result.includes('unknown command')) {
       return { suggestion: result.trim(), usedCopilot: true };
     }
