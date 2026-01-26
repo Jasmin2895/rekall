@@ -107,8 +107,11 @@ export function renderPersonalContext(result: SynthesisResult, ctx: AggregatedCo
   console.log('');
   divider();
 
-  if (result.fallbackMode) {
+  if (result.fallbackMode === false) {
+    console.log(chalk.green('  ✨ Powered by GitHub Copilot CLI'));
+  } else if (result.fallbackMode) {
     console.log(chalk.dim('  Note: GitHub Copilot CLI not available, using basic analysis'));
+    console.log(chalk.dim('  Install: gh extension install github/gh-copilot'));
   }
 
   console.log('');
@@ -169,8 +172,11 @@ export function renderPRContext(result: SynthesisResult, ctx: AggregatedContext)
   console.log('');
   divider();
 
-  if (result.fallbackMode) {
+  if (result.fallbackMode === false) {
+    console.log(chalk.green('  ✨ Powered by GitHub Copilot CLI'));
+  } else if (result.fallbackMode) {
     console.log(chalk.dim('  Note: GitHub Copilot CLI not available, using basic analysis'));
+    console.log(chalk.dim('  Install: gh extension install github/gh-copilot'));
   }
 
   console.log('');
@@ -223,6 +229,7 @@ export function renderJSON(result: SynthesisResult, ctx: AggregatedContext): voi
         failingTests: ctx.code.failingTests,
       },
     }),
+    poweredBy: result.fallbackMode === false ? 'github-copilot' : 'basic-analysis',
   };
 
   console.log(JSON.stringify(output, null, 2));

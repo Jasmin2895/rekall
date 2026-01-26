@@ -173,11 +173,15 @@ export async function synthesizeWithCopilot(ctx: AggregatedContext): Promise<Syn
   const copilotResult = await tryCopilotCLI(prompt);
 
   if (copilotResult) {
-    return ctx.mode === 'personal'
+    const result = ctx.mode === 'personal'
       ? parsePersonalResponse(copilotResult)
       : parsePRResponse(copilotResult);
+    result.fallbackMode = false;
+    return result;
   }
 
   // Use smart basic analysis as fallback
-  return generateSmartBasicAnalysis(ctx);
+  const result = generateSmartBasicAnalysis(ctx);
+  result.fallbackMode = true;
+  return result;
 }
