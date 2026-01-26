@@ -52,10 +52,13 @@ async function suggestWithCopilot(prompt: string): Promise<{ suggestion: string;
     .replace(/\$/g, '\\$')
     .replace(/`/g, '\\`');
 
+  const errorPatterns = ['not installed', 'unknown command', 'Quota exceeded', 'no quota', 'Execution failed', '402', '401'];
+  const hasError = (r: string) => errorPatterns.some(p => r.includes(p));
+
   // Try gh copilot -p syntax (current)
   try {
     const result = await exec(`gh copilot -p "${escapedPrompt}"`);
-    if (result && !result.includes('not installed') && !result.includes('unknown command')) {
+    if (result && !hasError(result)) {
       return { suggestion: result.trim(), usedCopilot: true };
     }
   } catch {
@@ -65,7 +68,7 @@ async function suggestWithCopilot(prompt: string): Promise<{ suggestion: string;
   // Try legacy gh copilot explain syntax
   try {
     const result = await exec(`gh copilot explain "${escapedPrompt}"`);
-    if (result && !result.includes('not installed') && !result.includes('unknown command')) {
+    if (result && !hasError(result)) {
       return { suggestion: result.trim(), usedCopilot: true };
     }
   } catch {

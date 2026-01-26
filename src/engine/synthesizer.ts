@@ -38,6 +38,11 @@ function parsePRResponse(raw: string): SynthesisResult {
   };
 }
 
+function isCopilotError(result: string): boolean {
+  const errorPatterns = ['not installed', 'Quota exceeded', 'no quota', 'Execution failed', '402', '401', 'unauthorized'];
+  return errorPatterns.some(p => result.includes(p));
+}
+
 async function tryCopilotCLI(prompt: string): Promise<string | null> {
   // Escape the prompt for shell
   const escapedPrompt = prompt
@@ -49,7 +54,7 @@ async function tryCopilotCLI(prompt: string): Promise<string | null> {
   // Try new gh copilot syntax first
   try {
     const result = await exec(`gh copilot -p "${escapedPrompt}"`);
-    if (result && !result.includes('not installed')) {
+    if (result && !isCopilotError(result)) {
       return result;
     }
   } catch {
@@ -59,7 +64,7 @@ async function tryCopilotCLI(prompt: string): Promise<string | null> {
   // Try legacy gh copilot explain syntax
   try {
     const result = await exec(`gh copilot explain "${escapedPrompt}"`);
-    if (result && !result.includes('not installed')) {
+    if (result && !isCopilotError(result)) {
       return result;
     }
   } catch {

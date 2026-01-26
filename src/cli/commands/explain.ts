@@ -32,6 +32,11 @@ async function getCommitMessages(numCommits: number): Promise<string> {
   }
 }
 
+function isCopilotError(result: string): boolean {
+  const errorPatterns = ['not installed', 'unknown command', 'Quota exceeded', 'no quota', 'Execution failed', '402', '401'];
+  return errorPatterns.some(p => result.includes(p));
+}
+
 async function explainWithCopilot(prompt: string): Promise<{ explanation: string; usedCopilot: boolean }> {
   // Escape the prompt for shell
   const escapedPrompt = prompt
@@ -43,7 +48,7 @@ async function explainWithCopilot(prompt: string): Promise<{ explanation: string
   // Try gh copilot -p syntax (current)
   try {
     const result = await exec(`gh copilot -p "${escapedPrompt}"`);
-    if (result && !result.includes('not installed') && !result.includes('unknown command')) {
+    if (result && !isCopilotError(result)) {
       return { explanation: result.trim(), usedCopilot: true };
     }
   } catch {
@@ -53,7 +58,7 @@ async function explainWithCopilot(prompt: string): Promise<{ explanation: string
   // Try legacy gh copilot explain syntax
   try {
     const result = await exec(`gh copilot explain "${escapedPrompt}"`);
-    if (result && !result.includes('not installed') && !result.includes('unknown command')) {
+    if (result && !isCopilotError(result)) {
       return { explanation: result.trim(), usedCopilot: true };
     }
   } catch {
