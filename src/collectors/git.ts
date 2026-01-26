@@ -73,6 +73,10 @@ export function calculateDaysSince(dateString: string): number {
   return -1;
 }
 
+export async function getGitContext(): Promise<GitContext> {
+  return collectGitContext();
+}
+
 export async function collectGitContext(): Promise<GitContext> {
   const [branch, log, status, stash] = await Promise.all([
     execSafe('git branch --show-current', 'unknown'),
