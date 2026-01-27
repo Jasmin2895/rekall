@@ -45,24 +45,14 @@ async function explainWithCopilot(prompt: string): Promise<{ explanation: string
     .replace(/\$/g, '\\$')
     .replace(/`/g, '\\`');
 
-  // Try gh copilot -p syntax (current)
   try {
-    const result = await exec(`gh copilot -p "${escapedPrompt}"`);
+    // Suppress stderr to prevent quota/error messages leaking to terminal
+    const result = await exec(`gh copilot -p "${escapedPrompt}" 2>/dev/null`);
     if (result && !isCopilotError(result)) {
       return { explanation: result.trim(), usedCopilot: true };
     }
   } catch {
-    // Try legacy syntax
-  }
-
-  // Try legacy gh copilot explain syntax
-  try {
-    const result = await exec(`gh copilot explain "${escapedPrompt}"`);
-    if (result && !isCopilotError(result)) {
-      return { explanation: result.trim(), usedCopilot: true };
-    }
-  } catch {
-    // Copilot not available
+    // Copilot not available or quota exceeded — fall back silently
   }
 
   return { explanation: '', usedCopilot: false };

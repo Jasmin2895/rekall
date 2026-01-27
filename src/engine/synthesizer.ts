@@ -51,24 +51,14 @@ async function tryCopilotCLI(prompt: string): Promise<string | null> {
     .replace(/\$/g, '\\$')
     .replace(/`/g, '\\`');
 
-  // Try new gh copilot syntax first
   try {
-    const result = await exec(`gh copilot -p "${escapedPrompt}"`);
+    // Suppress stderr to prevent quota/error messages leaking to terminal
+    const result = await exec(`gh copilot -p "${escapedPrompt}" 2>/dev/null`);
     if (result && !isCopilotError(result)) {
       return result;
     }
   } catch {
-    // Try legacy syntax
-  }
-
-  // Try legacy gh copilot explain syntax
-  try {
-    const result = await exec(`gh copilot explain "${escapedPrompt}"`);
-    if (result && !isCopilotError(result)) {
-      return result;
-    }
-  } catch {
-    // Copilot not available
+    // Copilot not available or quota exceeded — fall back silently
   }
 
   return null;

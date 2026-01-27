@@ -55,24 +55,14 @@ async function suggestWithCopilot(prompt: string): Promise<{ suggestion: string;
   const errorPatterns = ['not installed', 'unknown command', 'Quota exceeded', 'no quota', 'Execution failed', '402', '401'];
   const hasError = (r: string) => errorPatterns.some(p => r.includes(p));
 
-  // Try gh copilot -p syntax (current)
   try {
-    const result = await exec(`gh copilot -p "${escapedPrompt}"`);
+    // Suppress stderr to prevent quota/error messages leaking to terminal
+    const result = await exec(`gh copilot -p "${escapedPrompt}" 2>/dev/null`);
     if (result && !hasError(result)) {
       return { suggestion: result.trim(), usedCopilot: true };
     }
   } catch {
-    // Try legacy syntax
-  }
-
-  // Try legacy gh copilot explain syntax
-  try {
-    const result = await exec(`gh copilot explain "${escapedPrompt}"`);
-    if (result && !hasError(result)) {
-      return { suggestion: result.trim(), usedCopilot: true };
-    }
-  } catch {
-    // Copilot not available
+    // Copilot not available or quota exceeded — fall back silently
   }
 
   return { suggestion: '', usedCopilot: false };
