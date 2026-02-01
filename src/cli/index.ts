@@ -4,6 +4,7 @@ import { contextCommand } from './commands/context.js';
 import { prCommand } from './commands/pr.js';
 import { explainCommand } from './commands/explain.js';
 import { suggestCommand } from './commands/suggest.js';
+import { onboardCommand } from './commands/onboard.js';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
@@ -46,5 +47,12 @@ program
   .option('-f, --format <format>', 'Output format: text or json', 'text')
   .option('-t, --type <type>', 'Suggestion type: commit or branch', 'commit')
   .action(suggestCommand);
+
+// Onboard - quick project overview for newcomers
+program
+  .command('onboard')
+  .description('Quick project overview for newcomers')
+  .option('-f, --format <format>', 'Output format: text or json', 'text')
+  .action(onboardCommand);
 
 program.parse();

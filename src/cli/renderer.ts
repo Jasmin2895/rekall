@@ -242,3 +242,37 @@ export function renderLoading(message: string): void {
 export function clearLoading(): void {
   process.stdout.write('\r\x1b[K'); // Clear the line
 }
+
+// Onboard context rendering
+import { OnboardContext } from '../types/index.js';
+
+export function renderOnboardContext(ctx: OnboardContext): void {
+  console.log('');
+  console.log(chalk.bold.cyan(`  Welcome to project: ${ctx.projectName}`));
+  console.log(chalk.dim('  ' + '─'.repeat(35)));
+
+  console.log(`  ${chalk.yellow('🏗️')}  Architecture: ${ctx.architecture}`);
+
+  if (ctx.keyDependencies.length > 0) {
+    console.log(`  ${chalk.yellow('📦')}  Key dependencies: ${ctx.keyDependencies.join(', ')}`);
+  }
+
+  if (ctx.hotAreas.length > 0) {
+    const topArea = ctx.hotAreas[0];
+    console.log(`  ${chalk.yellow('🔥')}  Hot areas: ${topArea.directory} (${topArea.commitCount} commits this week)`);
+  }
+
+  if (ctx.todoCount > 0) {
+    console.log(`  ${chalk.yellow('⚠️')}  Watch out: ${ctx.todoCount} open TODO${ctx.todoCount > 1 ? 's' : ''} in ${ctx.todoLocation}`);
+  }
+
+  if (ctx.runCommand) {
+    console.log(`  ${chalk.yellow('🚀')}  To run: ${ctx.runCommand}`);
+  }
+
+  console.log('');
+}
+
+export function renderOnboardJSON(ctx: OnboardContext): void {
+  console.log(JSON.stringify(ctx, null, 2));
+}

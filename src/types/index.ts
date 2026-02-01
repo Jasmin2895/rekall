@@ -98,3 +98,21 @@ export interface SynthesisResult {
   blockers?: string[];
   fallbackMode?: boolean;
 }
+
+// Onboard Context Types
+export interface HotArea {
+  directory: string;
+  commitCount: number;
+  period: string;
+}
+
+export interface OnboardContext {
+  projectName: string;
+  architecture: string;
+  keyDependencies: string[];
+  hotAreas: HotArea[];
+  todoCount: number;
+  todoLocation: string;
+  runCommand: string;
+  projectType: ProjectInfo['type'];
+}
