@@ -20,6 +20,7 @@ You step away from your code for a meeting, lunch, or the weekend. When you retu
 - **PR Review** — Analyze pull requests with risk assessment and smart review questions
 - **Explain** — AI-powered explanation of your recent development work
 - **Suggest** — Generate commit messages and branch names from your changes
+- **Onboard** — Quick project overview for newcomers (architecture, dependencies, hot areas)
 - **JSON Output** — Pipe to other tools with `--format json`
 - **Zero Config** — Just run `rekall` in any git repository
 
@@ -58,6 +59,9 @@ rekall suggest
 # Suggest branch names
 rekall suggest "add user authentication" --type branch
 
+# Quick project overview for newcomers
+rekall onboard
+
 # JSON output
 rekall --format json
 ```
@@ -71,6 +75,7 @@ rekall --format json
 | `pr <number>` | `-f, --format` | Output format: `text` or `json` |
 | `explain` | `-n, --commits` | Number of commits to analyze (default: 5) |
 | `suggest [desc]` | `-t, --type` | Suggestion type: `commit` or `branch` |
+| `onboard` | `-f, --format` | Output format: `text` or `json` |
 
 ## GitHub Copilot CLI
 
