@@ -1,0 +1,9 @@
+{
+	"nodes":[
+		{"id":"bb788a0db04a9acd","x":-160,"y":-260,"width":250,"height":60,"color":"2","type":"text","text":"What we will be focussing on?"},
+		{"id":"ea4ace7f72ad4b66","x":-287,"y":-60,"width":505,"height":280,"color":"3","type":"text","text":"1. How OpenAI models work?\n2. Setting up a request\n3. Tokens\n4. Tools\n5. The \"Few Shot\" approach\n6. Temperature\n7. The \"Stop Sequence\"\n8. Frequency and Presence Penalties"}
+	],
+	"edges":[
+		{"id":"df758ba09ee68dca","fromNode":"bb788a0db04a9acd","fromSide":"bottom","toNode":"ea4ace7f72ad4b66","toSide":"top"}
+	]
+}
