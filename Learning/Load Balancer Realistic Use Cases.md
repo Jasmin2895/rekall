@@ -1,1 +1,0 @@
-A load balancer is like a traffic cop sitting in front of servers. It's job is to route all the client request across all servers 
